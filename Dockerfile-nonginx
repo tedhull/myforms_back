@@ -34,6 +34,9 @@ RUN echo "memory_limit=256M" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
 # Copy app source code
 COPY . /var/www/project
 
+# Install PHP dependencies
+RUN composer install --no-interaction --no-dev --optimize-autoloader
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www/project
 
