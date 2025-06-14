@@ -2,7 +2,7 @@ services:
     app:
         build:
             context: .
-            dockerfile: Dockerfile
+            dockerfile: Dockerfile-nonginx
         environment:
             - DATABASE_URL=mysql://root:root@db/docker_sf
         volumes:
