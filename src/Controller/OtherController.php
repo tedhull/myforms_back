@@ -12,7 +12,7 @@ final class OtherController extends AbstractController
     public function index(): JsonResponse
     {
         return $this->json([
-            'message' => 'Hi! this is response from controller 1',
+            'message' => 'Hi! this is response from controller 1    ',
             'path' => 'src/Controller/OtherController.php',
         ]);
     }
