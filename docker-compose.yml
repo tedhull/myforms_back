@@ -7,6 +7,7 @@ services:
             - DATABASE_URL=mysql://root:root@db/docker_sf
         volumes:
             - ./:/var/www/project/:cached
+            - /var/www/project/vendor
         ports:
             - 9000:80
         networks:

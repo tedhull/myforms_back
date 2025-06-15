@@ -31,11 +31,17 @@ RUN echo "memory_limit=256M" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
     && echo "upload_max_filesize=200M" >> "$PHP_INI_DIR/conf.d/memory-limit.ini" \
     && echo "post_max_size=200M" >> "$PHP_INI_DIR/conf.d/memory-limit.ini"
 
+# Copy composer files first for better layer caching
+COPY composer.json composer.lock /var/www/project/
+
+# Install dependencies
+RUN composer install --no-scripts --no-autoloader
+
 # Copy app source code
 COPY . /var/www/project
 
-# Install PHP dependencies
-RUN composer install --no-interaction --no-dev --optimize-autoloader
+# Generate optimized autoloader and run scripts
+RUN composer dump-autoload --optimize && composer run-script post-install-cmd
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/project
