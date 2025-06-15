@@ -37,22 +37,33 @@ RUN echo "memory_limit=256M" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
 # Copy composer files first for better layer caching
 COPY composer.json composer.lock /var/www/project/
 
-# Update and install dependencies with optimized settings
+# Set proper permissions for www-data user
+RUN chown -R www-data:www-data /var/www/project
+
+# Install dependencies with optimized settings as www-data user
+# Note: We're not using 'composer update' to avoid potential issues with dependency resolution
+# and to ensure we use the exact dependencies specified in composer.lock
+USER www-data
 RUN COMPOSER_MEMORY_LIMIT=-1 composer clear-cache && \
-    COMPOSER_MEMORY_LIMIT=-1 composer update --no-interaction --no-progress && \
     COMPOSER_MEMORY_LIMIT=-1 composer install --prefer-dist --no-scripts --no-autoloader --no-interaction --no-progress
+
+# Switch back to root for copying files
+USER root
 
 # Copy app source code
 COPY . /var/www/project
 
-# Generate optimized autoloader and run scripts
-RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --no-interaction --no-progress && COMPOSER_MEMORY_LIMIT=-1 composer run-script post-install-cmd --no-interaction --no-progress
-
-# Set permissions
+# Set proper permissions again after copying all files
 RUN chown -R www-data:www-data /var/www/project
+
+# Generate optimized autoloader and run scripts as www-data
+USER www-data
+RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --no-interaction && COMPOSER_MEMORY_LIMIT=-1 composer run-script post-install-cmd --no-interaction
 
 # Expose port 80
 EXPOSE 80
 
+# Stay as www-data user for running the application
+# This is more secure than running as root
 # Start PHP built-in server
 CMD ["php", "-S", "0.0.0.0:80", "-t", "public"]
