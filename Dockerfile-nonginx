@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
     libicu-dev \
     libonig-dev \
     libpq-dev \
+    libxml2-dev \
     && rm -rf /var/lib/apt/lists/*
 
 # Install PHP extensions
@@ -17,10 +18,12 @@ RUN docker-php-ext-install \
     intl \
     opcache \
     ctype \
-    iconv
+    iconv \
+    mbstring \
+    xml
 
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Install Composer (specific version for stability)
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
 # Set working directory
 WORKDIR /var/www/project
@@ -34,14 +37,16 @@ RUN echo "memory_limit=256M" > "$PHP_INI_DIR/conf.d/memory-limit.ini" \
 # Copy composer files first for better layer caching
 COPY composer.json composer.lock /var/www/project/
 
-# Install dependencies
-RUN composer install --no-scripts --no-autoloader
+# Update and install dependencies with optimized settings
+RUN COMPOSER_MEMORY_LIMIT=-1 composer clear-cache && \
+    COMPOSER_MEMORY_LIMIT=-1 composer update --no-interaction --no-progress && \
+    COMPOSER_MEMORY_LIMIT=-1 composer install --prefer-dist --no-scripts --no-autoloader --no-interaction --no-progress
 
 # Copy app source code
 COPY . /var/www/project
 
 # Generate optimized autoloader and run scripts
-RUN composer dump-autoload --optimize && composer run-script post-install-cmd
+RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --no-interaction --no-progress && COMPOSER_MEMORY_LIMIT=-1 composer run-script post-install-cmd --no-interaction --no-progress
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/project
