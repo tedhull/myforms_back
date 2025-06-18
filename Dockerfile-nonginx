@@ -47,23 +47,17 @@ USER www-data
 RUN COMPOSER_MEMORY_LIMIT=-1 composer clear-cache && \
     COMPOSER_MEMORY_LIMIT=-1 composer install --prefer-dist --no-scripts --no-autoloader --no-interaction --no-progress
 
-# Switch back to root for copying files
 USER root
 
-# Copy app source code
 COPY . /var/www/project
 
-# Set proper permissions again after copying all files
 RUN chown -R www-data:www-data /var/www/project
 
-# Generate optimized autoloader and run scripts as www-data
 USER www-data
 RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --no-interaction && COMPOSER_MEMORY_LIMIT=-1 composer run-script post-install-cmd --no-interaction
 
-# Expose port 80
 EXPOSE 80
 
-# Stay as www-data user for running the application
-# This is more secure than running as root
-# Start PHP built-in server
+RUN php bin/console doctrine:migrations:migrate --no-interaction
+
 CMD ["php", "-S", "0.0.0.0:80", "-t", "public"]
