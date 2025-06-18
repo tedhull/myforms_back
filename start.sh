@@ -1,10 +1,13 @@
 #!/bin/bash
 
-# Install dependencies (safe to run repeatedly)
-composer install --no-interaction --optimize-autoloader
+# Wait for DB to be ready (optional but smart)
+echo "Waiting for database..."
+until php bin/console doctrine:query:sql "SELECT 1" > /dev/null 2>&1; do
+  sleep 2
+done
 
 # Run migrations
-php bin/console doctrine:migrations:migrate --no-interaction || true
+php bin/console doctrine:migrations:migrate --no-interaction
 
-# Start PHP server (or php-fpm if you're using a web server)
+# Start built-in PHP server
 php -S 0.0.0.0:80 -t public

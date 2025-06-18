@@ -51,13 +51,15 @@ USER root
 
 COPY . /var/www/project
 
+COPY start.sh /usr/local/bin/start.sh
+
+RUN chmod +x /usr/local/bin/start.sh
+
 RUN chown -R www-data:www-data /var/www/project
 
 USER www-data
 RUN COMPOSER_MEMORY_LIMIT=-1 composer dump-autoload --optimize --no-interaction && COMPOSER_MEMORY_LIMIT=-1 composer run-script post-install-cmd --no-interaction
 
-COPY start.sh /usr/local/bin/start.sh
-RUN chmod +x /usr/local/bin/start.sh
 
 EXPOSE 80
 
