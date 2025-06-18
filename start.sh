@@ -5,8 +5,6 @@ echo "Waiting for database..."
 until php bin/console doctrine:query:sql "SELECT 1" > /dev/null 2>&1; do
   sleep 2
 done
-php bin/console doctrine:migrations:diff
 php bin/console doctrine:make:migration
 php bin/console doctrine:migrations:migrate
-
 php -S 0.0.0.0:80 -t public
