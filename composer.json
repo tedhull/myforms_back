@@ -15,7 +15,6 @@
         "nelmio/cors-bundle": "^2.5",
         "symfony/console": "7.3.*",
         "symfony/dotenv": "7.3.*",
-        "symfony/error-handler": "7.3.*",
         "symfony/flex": "^2.7",
         "symfony/framework-bundle": "7.3.*",
         "symfony/property-access": "7.3.*",

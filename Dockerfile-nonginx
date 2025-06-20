@@ -49,9 +49,7 @@ RUN echo "APP_ENV=prod" > .env.local && \
     echo "APP_DEBUG=0" >> .env.local
 
 # Generate optimized autoloader and run post-install scripts
-RUN composer dump-autoload --optimize --no-dev --classmap-authoritative && \
-    composer run-script post-install-cmd --no-interaction
-
+RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
 # Stage 2: Final image
 FROM php:8.2-cli
 
