@@ -39,8 +39,9 @@ RUN composer install --prefer-dist --no-scripts --no-autoloader --no-dev --no-in
 # Copy application files
 COPY . .
 
-# Generate optimized autoloader
-RUN composer dump-autoload --optimize --no-dev --classmap-authoritative
+# Generate optimized autoloader and run post-install scripts
+RUN composer dump-autoload --optimize --no-dev --classmap-authoritative && \
+    composer run-script post-install-cmd --no-interaction
 
 # Stage 2: Final image
 FROM php:8.2-cli
