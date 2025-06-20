@@ -34,10 +34,19 @@ COPY composer.json composer.lock ./
 
 # Install dependencies with optimized settings
 ENV COMPOSER_ALLOW_SUPERUSER=1
+ENV APP_ENV=prod
+ENV APP_DEBUG=0
 RUN composer install --prefer-dist --no-scripts --no-autoloader --no-dev --no-interaction --no-progress
 
 # Copy application files
 COPY . .
+
+# Ensure cache directory is fresh and has correct permissions
+RUN rm -rf var/cache && mkdir -p var/cache && chmod -R 777 var/cache
+
+# Create .env.local with production settings
+RUN echo "APP_ENV=prod" > .env.local && \
+    echo "APP_DEBUG=0" >> .env.local
 
 # Generate optimized autoloader and run post-install scripts
 RUN composer dump-autoload --optimize --no-dev --classmap-authoritative && \
