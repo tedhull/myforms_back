@@ -34,9 +34,6 @@ class Template
     #[ORM\Column]
     private ?\DateTimeImmutable $updated_at = null;
 
-    #[Groups(['template:read'])]
-    #[ORM\Column(nullable: true)]
-    private ?User $author = null;
 
     /**
      * @var Collection<int, Field>
@@ -45,22 +42,15 @@ class Template
     #[Groups(['template:read'])]
     #[ORM\OneToMany(targetEntity: Field::class, mappedBy: 'template', orphanRemoval: true)]
     private Collection $fields;
+    #[Groups(['template:read'])]
+    #[ORM\ManyToOne(inversedBy: 'Templates')]
+    private ?User $creator = null;
 
     public function __construct()
     {
         $this->fields = new ArrayCollection();
     }
 
-    public function setAuthor(User $author): static
-    {
-        $this->author = $author;
-        return $this;
-    }
-
-    public function getAuthor(): ?User
-    {
-        return $this->author;
-    }
 
     public function getId(): ?int
     {
@@ -141,6 +131,18 @@ class Template
                 $field->setTemplate(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getCreator(): ?User
+    {
+        return $this->creator;
+    }
+
+    public function setCreator(?User $creator): static
+    {
+        $this->creator = $creator;
 
         return $this;
     }

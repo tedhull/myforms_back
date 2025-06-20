@@ -4,8 +4,6 @@ namespace App\Controller;
 
 use App\Entity\Field;
 use App\Entity\Template;
-use App\Entity\User;
-use App\Repository\FieldRepository;
 use App\Repository\TemplateRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,7 +31,7 @@ final class TemplatesController extends AbstractController
         $template = new Template();
         $template->setCreatedAt(date_create_immutable());
         $template->setUpdatedAt(date_create_immutable());
-        //  $template->setAuthor(null);
+        $template->setCreator($this->getUser());
         $template->setTitle($data['title']);
         $template->setDescription($data['description']);
 
