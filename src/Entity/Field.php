@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use App\Repository\FieldRepository;
+use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
@@ -15,7 +16,7 @@ class Field
     #[Groups(['template:read'])]
     private ?int $id = null;
     #[Groups(['template:read'])]
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(length: 255, nullable: true)]
     private ?string $title = null;
     #[ORM\ManyToOne(targetEntity: Template::class, inversedBy: 'fields')]
     #[ORM\JoinColumn(nullable: false)]
@@ -24,11 +25,25 @@ class Field
     #[ORM\Column(length: 255)]
     private ?string $type = null;
     #[Groups(['template:read'])]
-    #[ORM\Column]
+    #[ORM\Column(nullable: true)]
     private ?bool $isRequired = null;
     #[Groups(['template:read'])]
     #[ORM\Column]
     private ?int $position = null;
+
+    #[Groups(['template:read'])]
+    #[ORM\Column(type: Types::ARRAY, nullable: true)]
+    private ?array $options = null;
+
+
+    #[Groups(['template:read'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $imageUrl = null;
+
+    #[Groups(['template:read'])]
+    #[ORM\Column(length: 255)]
+    private ?string $description = null;
+
 
     public function getId(): ?int
     {
@@ -94,4 +109,41 @@ class Field
 
         return $this;
     }
+
+    public function getOptions(): ?array
+    {
+        return $this->options;
+    }
+
+    public function setOptions(?array $options): static
+    {
+        $this->options = $options;
+
+        return $this;
+    }
+
+    public function getImageUrl(): ?string
+    {
+        return $this->imageUrl;
+    }
+
+    public function setImageUrl(?string $imageUrl): static
+    {
+        $this->imageUrl = $imageUrl;
+
+        return $this;
+    }
+
+    public function getDescription(): ?string
+    {
+        return $this->description;
+    }
+
+    public function setDescription(string $description): static
+    {
+        $this->description = $description;
+
+        return $this;
+    }
+
 }

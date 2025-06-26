@@ -46,6 +46,14 @@ class Template
     #[ORM\ManyToOne(inversedBy: 'Templates')]
     private ?User $creator = null;
 
+    #[Groups(['template:read'])]
+    #[ORM\Column(length: 255)]
+    private ?string $topic = null;
+
+    #[Groups(['template:read'])]
+    #[ORM\Column(type: Types::ARRAY, nullable: true)]
+    private ?array $tags = null;
+
     public function __construct()
     {
         $this->fields = new ArrayCollection();
@@ -143,6 +151,30 @@ class Template
     public function setCreator(?User $creator): static
     {
         $this->creator = $creator;
+
+        return $this;
+    }
+
+    public function getTopic(): ?string
+    {
+        return $this->topic;
+    }
+
+    public function setTopic(string $topic): static
+    {
+        $this->topic = $topic;
+
+        return $this;
+    }
+
+    public function getTags(): ?array
+    {
+        return $this->tags;
+    }
+
+    public function setTags(?array $tags): static
+    {
+        $this->tags = $tags;
 
         return $this;
     }

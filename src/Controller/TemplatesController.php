@@ -32,20 +32,26 @@ final class TemplatesController extends AbstractController
         $template->setCreatedAt(date_create_immutable());
         $template->setUpdatedAt(date_create_immutable());
         $template->setCreator($this->getUser());
+        $template->setTopic($data['topic']);
+        $template->setTags($data['tags']);
         $template->setTitle($data['title']);
         $template->setDescription($data['description']);
 
 
         $fields = $data['fields'];
+        $index = 0;
         foreach ($fields as $field) {
             $fieldEntity = new Field();
+
             $fieldEntity->setTitle($field['title']);
+            $fieldEntity->setDescription($field['description']);
             $fieldEntity->setType($field['type']);
             $fieldEntity->setIsRequired($field['required']);
-            $fieldEntity->setPosition($field['position']);
+            $fieldEntity->setPosition($index);
+            $fieldEntity->setOptions($field['options']);
             $fieldEntity->setTemplate($template);
             $emi->persist($fieldEntity);
-
+            $index++;
         }
         $emi->persist($template);
         $emi->flush();

@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250619191914 extends AbstractMigration
+final class Version20250626173026 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -20,7 +20,9 @@ final class Version20250619191914 extends AbstractMigration
     public function up(Schema $schema): void
     {
         // this up() migration is auto-generated, please modify it to your needs
-
+        $this->addSql(<<<'SQL'
+            ALTER TABLE template RENAME COLUMN ефtags TO tags
+        SQL);
     }
 
     public function down(Schema $schema): void
@@ -28,6 +30,9 @@ final class Version20250619191914 extends AbstractMigration
         // this down() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
             CREATE SCHEMA public
+        SQL);
+        $this->addSql(<<<'SQL'
+            ALTER TABLE template RENAME COLUMN tags TO "ефtags"
         SQL);
     }
 }

@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250620092956 extends AbstractMigration
+final class Version20250626174621 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -21,22 +21,19 @@ final class Version20250620092956 extends AbstractMigration
     {
         // this up() migration is auto-generated, please modify it to your needs
         $this->addSql(<<<'SQL'
-            ALTER TABLE "user" ADD roles JSON NOT NULL
+            ALTER TABLE field ADD options TEXT DEFAULT NULL
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE "user" ADD password VARCHAR(255) NOT NULL
+            ALTER TABLE field ADD image_url VARCHAR(255) DEFAULT NULL
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE "user" DROP name
+            ALTER TABLE field ADD description VARCHAR(255) NOT NULL
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE "user" DROP role
+            ALTER TABLE field DROP data
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE "user" ALTER email TYPE VARCHAR(180)
-        SQL);
-        $this->addSql(<<<'SQL'
-            CREATE UNIQUE INDEX UNIQ_IDENTIFIER_EMAIL ON "user" (email)
+            COMMENT ON COLUMN field.options IS '(DC2Type:array)'
         SQL);
     }
 
@@ -47,19 +44,16 @@ final class Version20250620092956 extends AbstractMigration
             CREATE SCHEMA public
         SQL);
         $this->addSql(<<<'SQL'
-            DROP INDEX UNIQ_IDENTIFIER_EMAIL
+            ALTER TABLE field ADD data JSON DEFAULT NULL
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE "user" ADD role VARCHAR(255) NOT NULL
+            ALTER TABLE field DROP options
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE "user" DROP roles
+            ALTER TABLE field DROP image_url
         SQL);
         $this->addSql(<<<'SQL'
-            ALTER TABLE "user" ALTER email TYPE VARCHAR(255)
-        SQL);
-        $this->addSql(<<<'SQL'
-            ALTER TABLE "user" RENAME COLUMN password TO name
+            ALTER TABLE field DROP description
         SQL);
     }
 }
