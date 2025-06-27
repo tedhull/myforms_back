@@ -42,20 +42,26 @@ final class TemplatesController extends AbstractController
         $index = 0;
         foreach ($fields as $field) {
             $fieldEntity = new Field();
-
-            $fieldEntity->setTitle($field['title']);
-            $fieldEntity->setDescription($field['description']);
+            if ($field['type'] === 'question') {
+                $fieldEntity->setTitle($field['title']);
+                $fieldEntity->setDescription($field['description']);
+                $fieldEntity->setIsRequired($field['isRequired']);
+                $fieldEntity->setQuestionType($field['questionType']);
+                $fieldEntity->setOptions($field['options']);
+            } else {
+                $fieldEntity->setDescription('');
+                        $fieldEntity->setKey($field['key']);
+                $fieldEntity->setCaption($field['caption']);
+            }
             $fieldEntity->setType($field['type']);
-            $fieldEntity->setIsRequired($field['required']);
             $fieldEntity->setPosition($index);
-            $fieldEntity->setOptions($field['options']);
             $fieldEntity->setTemplate($template);
             $emi->persist($fieldEntity);
             $index++;
         }
         $emi->persist($template);
         $emi->flush();
-        return new JsonResponse($data);
+        return new JsonResponse(['message' => 'Template created successfully', 'id' => $template->getId()], 201);
     }
 
     #[Route('api/templates/{id}', name: 'get', methods: ['GET'])]

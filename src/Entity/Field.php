@@ -44,6 +44,18 @@ class Field
     #[ORM\Column(length: 255)]
     private ?string $description = null;
 
+    #[Groups(['template:read'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $questionType = null;
+
+    #[Groups(['template:read'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $key = null;
+
+    #[Groups(['template:read'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $caption = null;
+
 
     public function getId(): ?int
     {
@@ -142,6 +154,42 @@ class Field
     public function setDescription(string $description): static
     {
         $this->description = $description;
+
+        return $this;
+    }
+
+    public function getQuestionType(): ?string
+    {
+        return $this->questionType;
+    }
+
+    public function setQuestionType(?string $questionType): static
+    {
+        $this->questionType = $questionType;
+
+        return $this;
+    }
+
+    public function getKey(): ?string
+    {
+        return $this->key;
+    }
+
+    public function setKey(?string $key): static
+    {
+        $this->key = $key;
+
+        return $this;
+    }
+
+    public function getCaption(): ?string
+    {
+        return $this->caption;
+    }
+
+    public function setCaption(?string $caption): static
+    {
+        $this->caption = $caption;
 
         return $this;
     }
