@@ -21,15 +21,6 @@ until php bin/console doctrine:query:sql "SELECT 1" > /dev/null 2>&1; do
 done
 echo "Database connection established!"
 
-# Run migrations (don't create migrations in production)
-if [ "$APP_ENV" != "prod" ]; then
-  echo "Creating migration if needed..."
-  php bin/console doctrine:make:migration --no-interaction
-fi
-
-echo "Running database migrations..."
-php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration
-
 # Clear cache for production
 if [ "$APP_ENV" = "prod" ]; then
   echo "Clearing and warming up cache..."
