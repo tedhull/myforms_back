@@ -1,17 +1,15 @@
 <?php
 
 namespace App\Controller;
-require dirname(__DIR__) . '/../vendor/autoload.php';
 
-use Aws\Credentials\Credentials;
 use Aws\S3\Exception\S3Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Attribute\Route;
 use Aws\S3\S3Client;
-use Aws\Exception;
-use function Symfony\Component\DependencyInjection\Loader\Configurator\env;
+
+require dirname(__DIR__) . '/../vendor/autoload.php';
 
 final class BlobController extends AbstractController
 {

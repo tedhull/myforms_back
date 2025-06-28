@@ -10,7 +10,7 @@ use Doctrine\Migrations\AbstractMigration;
 /**
  * Auto-generated Migration: Please modify to your needs!
  */
-final class Version20250626143235 extends AbstractMigration
+final class Version20250628095250 extends AbstractMigration
 {
     public function getDescription(): string
     {
@@ -27,13 +27,16 @@ final class Version20250626143235 extends AbstractMigration
             CREATE UNIQUE INDEX UNIQ_IDENTIFIER_EMAIL ON "user" (email)
         SQL);
         $this->addSql(<<<'SQL'
-            CREATE TABLE field (id SERIAL NOT NULL, template_id INT NOT NULL, title VARCHAR(255) DEFAULT NULL, type VARCHAR(255) NOT NULL, is_required BOOLEAN DEFAULT NULL, position INT NOT NULL, data JSON DEFAULT NULL, PRIMARY KEY(id))
+            CREATE TABLE field (id SERIAL NOT NULL, template_id INT NOT NULL, title VARCHAR(255) DEFAULT NULL, type VARCHAR(255) NOT NULL, is_required BOOLEAN DEFAULT NULL, position INT NOT NULL, options TEXT DEFAULT NULL, image_url VARCHAR(255) DEFAULT NULL, description VARCHAR(255) NOT NULL, question_type VARCHAR(255) DEFAULT NULL, key VARCHAR(255) DEFAULT NULL, caption VARCHAR(255) DEFAULT NULL, PRIMARY KEY(id))
         SQL);
         $this->addSql(<<<'SQL'
             CREATE INDEX IDX_5BF545585DA0FB8 ON field (template_id)
         SQL);
         $this->addSql(<<<'SQL'
-            CREATE TABLE template (id SERIAL NOT NULL, creator_id INT DEFAULT NULL, title VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, created_at DATE NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, topic VARCHAR(255) NOT NULL, ефtags TEXT DEFAULT NULL, PRIMARY KEY(id))
+            COMMENT ON COLUMN field.options IS '(DC2Type:array)'
+        SQL);
+        $this->addSql(<<<'SQL'
+            CREATE TABLE template (id SERIAL NOT NULL, creator_id INT DEFAULT NULL, title VARCHAR(255) NOT NULL, description VARCHAR(255) NOT NULL, created_at DATE NOT NULL, updated_at TIMESTAMP(0) WITHOUT TIME ZONE NOT NULL, topic VARCHAR(255) NOT NULL, tags TEXT DEFAULT NULL, PRIMARY KEY(id))
         SQL);
         $this->addSql(<<<'SQL'
             CREATE INDEX IDX_97601F8361220EA6 ON template (creator_id)
@@ -45,7 +48,7 @@ final class Version20250626143235 extends AbstractMigration
             COMMENT ON COLUMN template.updated_at IS '(DC2Type:datetime_immutable)'
         SQL);
         $this->addSql(<<<'SQL'
-            COMMENT ON COLUMN template.ефtags IS '(DC2Type:array)'
+            COMMENT ON COLUMN template.tags IS '(DC2Type:array)'
         SQL);
         $this->addSql(<<<'SQL'
             ALTER TABLE field ADD CONSTRAINT FK_5BF545585DA0FB8 FOREIGN KEY (template_id) REFERENCES template (id) NOT DEFERRABLE INITIALLY IMMEDIATE
@@ -58,9 +61,6 @@ final class Version20250626143235 extends AbstractMigration
     public function down(Schema $schema): void
     {
         // this down() migration is auto-generated, please modify it to your needs
-        $this->addSql(<<<'SQL'
-            CREATE SCHEMA public
-        SQL);
         $this->addSql(<<<'SQL'
             ALTER TABLE field DROP CONSTRAINT FK_5BF545585DA0FB8
         SQL);
