@@ -41,6 +41,7 @@ class Template
 
     #[Groups(['template:read'])]
     #[ORM\OneToMany(targetEntity: Field::class, mappedBy: 'template', orphanRemoval: true)]
+    #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $fields;
     #[Groups(['template:read'])]
     #[ORM\ManyToOne(inversedBy: 'Templates')]

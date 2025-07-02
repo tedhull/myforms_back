@@ -37,27 +37,10 @@ final class TemplatesController extends AbstractController
         $template->setTitle($data['title']);
         $template->setDescription($data['description']);
 
-
         $fields = $data['fields'];
-        $index = 0;
         foreach ($fields as $field) {
             $fieldEntity = new Field();
-            if ($field['type'] === 'question') {
-                $fieldEntity->setTitle($field['title']);
-                $fieldEntity->setDescription($field['description']);
-                $fieldEntity->setIsRequired($field['isRequired']);
-                $fieldEntity->setQuestionType($field['questionType']);
-                $fieldEntity->setOptions($field['options']);
-            } else {
-                $fieldEntity->setDescription('');
-                        $fieldEntity->setKey($field['key']);
-                $fieldEntity->setCaption($field['caption']);
-            }
-            $fieldEntity->setType($field['type']);
-            $fieldEntity->setPosition($index);
-            $fieldEntity->setTemplate($template);
-            $emi->persist($fieldEntity);
-            $index++;
+            $this->setField($fieldEntity, $field, $template, $emi);
         }
         $emi->persist($template);
         $emi->flush();
@@ -73,5 +56,59 @@ final class TemplatesController extends AbstractController
         }
         $json = $serializer->serialize($template, 'json', ['groups' => 'template:read']);
         return new JsonResponse($json, 200, [], true);
+    }
+
+    #[Route('api/templates/update/{id}', name: 'update', methods: ['PUT'])]
+    public function updateTemplate($id, Request $request, SerializerInterface $serializer, EntityManagerInterface $emi): JsonResponse
+    {
+        $template = $emi->getRepository(Template::class)->find($id);
+        if (!$template) {
+            return $this->json(['error' => 'Template not found'], 404);
+        }
+        $data = json_decode($request->getContent(), true);
+        $template->setTitle($data['title']);
+        $template->setDescription($data['description']);
+        $template->setTopic($data['topic']);
+        $template->setTags($data['tags']);
+        $template->setUpdatedAt(date_create_immutable());
+        if (isset($data['deletedIds'])) {
+            foreach ($data['deletedIds'] as $deletedId) {
+                $field = $emi->getRepository(Field::class)->find($deletedId);
+                if ($field) {
+                    $emi->remove($field);
+                }
+            }
+        }
+        if (isset($data['updatedBlocks'])) {
+            foreach ($data['updatedBlocks'] as $field) {
+                $fieldEntity = $emi->getRepository(Field::class)->find($field['id']);
+                if (!$fieldEntity) $fieldEntity = new Field();
+                $this->setField($fieldEntity, $field, $template, $emi);
+            }
+        }
+        $emi->persist($template);
+        $emi->flush();
+        $json = $serializer->serialize($template, 'json', ['groups' => 'template:read']);
+        return new JsonResponse($json, 200, [], true);
+    }
+
+    function setField(Field $entity, array $data, Template $template, EntityManagerInterface $emi): void
+    {
+        if ($data['type'] === 'question') {
+            $entity->setTitle($data['title']);
+            $entity->setDescription($data['description']);
+            $entity->setIsRequired($data['isRequired']);
+            $entity->setQuestionType($data['questionType']);
+            $entity->setOptions($data['options']);
+        } else {
+            $entity->setDescription('');
+            $entity->setKey($data['key']);
+            $entity->setCaption($data['caption']);
+            $entity->setPreview($data['preview']);
+        }
+        $entity->setType($data['type']);
+        $entity->setPosition($data['position']);
+        $entity->setTemplate($template);
+        $emi->persist($entity);
     }
 }

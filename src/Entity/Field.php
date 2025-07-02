@@ -56,6 +56,10 @@ class Field
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $caption = null;
 
+    #[Groups(['template:read'])]
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $preview = null;
+
 
     public function getId(): ?int
     {
@@ -190,6 +194,18 @@ class Field
     public function setCaption(?string $caption): static
     {
         $this->caption = $caption;
+
+        return $this;
+    }
+
+    public function getPreview(): ?string
+    {
+        return $this->preview;
+    }
+
+    public function setPreview(?string $preview): static
+    {
+        $this->preview = $preview;
 
         return $this;
     }
