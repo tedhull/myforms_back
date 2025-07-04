@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use App\Repository\FieldRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
@@ -59,6 +61,17 @@ class Field
     #[Groups(['template:read'])]
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $preview = null;
+
+    /**
+     * @var Collection<int, FormResponse>
+     */
+    #[ORM\OneToMany(targetEntity: FormResponse::class, mappedBy: 'question', orphanRemoval: true)]
+    private Collection $formResponses;
+
+    public function __construct()
+    {
+        $this->formResponses = new ArrayCollection();
+    }
 
 
     public function getId(): ?int
@@ -206,6 +219,36 @@ class Field
     public function setPreview(?string $preview): static
     {
         $this->preview = $preview;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, FormResponse>
+     */
+    public function getFormResponses(): Collection
+    {
+        return $this->formResponses;
+    }
+
+    public function addFormResponse(FormResponse $formResponse): static
+    {
+        if (!$this->formResponses->contains($formResponse)) {
+            $this->formResponses->add($formResponse);
+            $formResponse->setQuestion($this);
+        }
+
+        return $this;
+    }
+
+    public function removeFormResponse(FormResponse $formResponse): static
+    {
+        if ($this->formResponses->removeElement($formResponse)) {
+            // set the owning side to null (unless already changed)
+            if ($formResponse->getQuestion() === $this) {
+                $formResponse->setQuestion(null);
+            }
+        }
 
         return $this;
     }

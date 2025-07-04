@@ -38,9 +38,12 @@ final class TemplatesController extends AbstractController
         $template->setDescription($data['description']);
 
         $fields = $data['fields'];
+        $index = 0;
         foreach ($fields as $field) {
             $fieldEntity = new Field();
+            $fieldEntity->setPosition($index);
             $this->setField($fieldEntity, $field, $template, $emi);
+            $index++;
         }
         $emi->persist($template);
         $emi->flush();
@@ -65,30 +68,31 @@ final class TemplatesController extends AbstractController
         if (!$template) {
             return $this->json(['error' => 'Template not found'], 404);
         }
+
         $data = json_decode($request->getContent(), true);
+
         $template->setTitle($data['title']);
         $template->setDescription($data['description']);
         $template->setTopic($data['topic']);
         $template->setTags($data['tags']);
         $template->setUpdatedAt(date_create_immutable());
-        if (isset($data['deletedIds'])) {
-            foreach ($data['deletedIds'] as $deletedId) {
-                $field = $emi->getRepository(Field::class)->find($deletedId);
-                if ($field) {
-                    $emi->remove($field);
-                }
+        foreach ($data['deletedBlockIds'] as $deletedId) {
+            $field = $emi->getRepository(Field::class)->find($deletedId);
+            if ($field) {
+                $emi->remove($field);
             }
         }
-        if (isset($data['updatedBlocks'])) {
-            foreach ($data['updatedBlocks'] as $field) {
-                $fieldEntity = $emi->getRepository(Field::class)->find($field['id']);
-                if (!$fieldEntity) $fieldEntity = new Field();
-                $this->setField($fieldEntity, $field, $template, $emi);
-            }
+
+        foreach ($data['updatedBlocks'] as $field) {
+            $fieldEntity = $emi->getRepository(Field::class)->find($field['id']);
+
+            if (!$fieldEntity) $fieldEntity = new Field();
+            $fieldEntity->setPosition($field['position']);
+            $this->setField($fieldEntity, $field, $template, $emi);
         }
         $emi->persist($template);
         $emi->flush();
-        $json = $serializer->serialize($template, 'json', ['groups' => 'template:read']);
+        $json = $serializer->serialize($data, 'json', ['groups' => 'template:read']);
         return new JsonResponse($json, 200, [], true);
     }
 
@@ -107,7 +111,6 @@ final class TemplatesController extends AbstractController
             $entity->setPreview($data['preview']);
         }
         $entity->setType($data['type']);
-        $entity->setPosition($data['position']);
         $entity->setTemplate($template);
         $emi->persist($entity);
     }
