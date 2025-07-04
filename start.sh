@@ -5,22 +5,6 @@ PORT=${PORT:-80}
 
 # Print environment info (useful for debugging)
 echo "Starting application in ${APP_ENV} mode on port ${PORT}"
-
-# Wait for DB to be ready with timeout
-echo "Waiting for database connection..."
-MAX_TRIES=30
-COUNT=0
-until php bin/console doctrine:query:sql "SELECT 1" > /dev/null 2>&1; do
-  COUNT=$((COUNT + 1))
-  if [ $COUNT -ge $MAX_TRIES ]; then
-    echo "Error: Could not connect to the database after ${MAX_TRIES} attempts."
-    exit 1
-  fi
-  echo "Attempt ${COUNT}/${MAX_TRIES}: Database not ready yet. Waiting..."
-  sleep 2
-done
-echo "Database connection established!"
-
 # Clear cache for production
 if [ "$APP_ENV" = "prod" ]; then
   echo "Clearing and warming up cache..."
