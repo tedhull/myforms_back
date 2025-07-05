@@ -41,7 +41,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[ORM\OneToMany(targetEntity: Template::class, mappedBy: 'creator')]
     private Collection $Templates;
-
     public function __construct()
     {
         $this->Templates = new ArrayCollection();

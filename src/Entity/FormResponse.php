@@ -27,6 +27,10 @@ class FormResponse
     #[ORM\Column(type: Types::ARRAY, nullable: true)]
     private ?array $pickedOptions = null;
 
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $respondent = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -64,7 +68,6 @@ class FormResponse
     public function setNumericResponse(?int $numericResponse): static
     {
         $this->numericResponse = $numericResponse;
-
         return $this;
     }
 
@@ -76,6 +79,18 @@ class FormResponse
     public function setPickedOptions(?array $pickedOptions): static
     {
         $this->pickedOptions = $pickedOptions;
+
+        return $this;
+    }
+
+    public function getRespondent(): ?User
+    {
+        return $this->respondent;
+    }
+
+    public function setRespondent(?User $respondent): static
+    {
+        $this->respondent = $respondent;
 
         return $this;
     }

@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Entity\FormResponse;
+use App\Repository\FieldRepository;
 use App\Repository\TemplateRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -22,11 +24,41 @@ final class FormController extends AbstractController
     }
 
     #[Route('/api/form/submit', name: 'app_form_get', methods: ['POST'])]
-    public function submit(Request $request, TemplateRepository $templateRepository, SerializerInterface $serializer): JsonResponse
+    public function submit(Request $request, TemplateRepository $templateRepository, FieldRepository $fieldRepository, EntityManagerInterface $emi, SerializerInterface $serializer): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $formData = $data['formData'];
+        foreach ($formData as $response) {
+            $field = $fieldRepository->find($response['id']);
+            $responseEntity = new FormResponse();
+            $responseEntity->setQuestion($field);
+            $responseEntity->setRespondent($this->getUser());
+            $this->setResponse($response, $responseEntity);
+            $emi->persist($responseEntity);
+        }
+        $emi->flush();
         $formData = $serializer->serialize($formData, 'json');
-        return new JsonResponse(['message' => 'Form submitted successfully', 'formData' => $formData], 201);
+        return new JsonResponse(['message' => 'Form submitted successfully', 'data' => $formData], 201);
+    }
+
+    function setResponse($jsonResponse, FormResponse $responseEntity): void
+    {
+
+        switch ($jsonResponse['type']) {
+            case 'single-line':
+            case 'paragraph':
+                $responseEntity->setTextResponse($jsonResponse['value']);
+                break;
+
+            case 'number':
+            case 'one-from-list':
+                $responseEntity->setNumericResponse($jsonResponse['value']);
+                break;
+
+            case 'few-from-list':
+            default:
+                $responseEntity->setPickedOptions($jsonResponse['value']);
+                break;
+        }
     }
 }
