@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Field;
 use App\Entity\FormResponse;
 use App\Repository\FieldRepository;
+use App\Repository\FormResponseRepository;
 use App\Repository\TemplateRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -24,12 +26,13 @@ final class FormController extends AbstractController
     }
 
     #[Route('/api/form/submit', name: 'app_form_get', methods: ['POST'])]
-    public function submit(Request $request, TemplateRepository $templateRepository, FieldRepository $fieldRepository, EntityManagerInterface $emi, SerializerInterface $serializer): JsonResponse
+    public function submit(Request $request, FieldRepository $fieldRepository, FormResponseRepository $responseRepository, EntityManagerInterface $emi, SerializerInterface $serializer): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
         $formData = $data['formData'];
         foreach ($formData as $response) {
             $field = $fieldRepository->find($response['id']);
+            $this->deleteIfExists($field, $responseRepository);
             $responseEntity = new FormResponse();
             $responseEntity->setQuestion($field);
             $responseEntity->setRespondent($this->getUser());
@@ -41,7 +44,16 @@ final class FormController extends AbstractController
         return new JsonResponse(['message' => 'Form submitted successfully', 'data' => $formData], 201);
     }
 
-    function setResponse($jsonResponse, FormResponse $responseEntity): void
+
+    private function deleteIfExists(Field $field, $responseRepository): void
+    {
+        $response = $responseRepository->findOneBy(['question' => $field, 'respondent' => $this->getUser()]);
+        if ($response) {
+            $field->removeFormResponse($response);
+        }
+    }
+
+    private function setResponse($jsonResponse, FormResponse $responseEntity): void
     {
 
         switch ($jsonResponse['type']) {
