@@ -1,5 +1,5 @@
 <?php
-// src/EventListener/JWTCreatedEvent.php
+// src/EventListener/JWTCreatedListener.php
 
 namespace App\EventListener;
 
