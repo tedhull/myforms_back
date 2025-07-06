@@ -15,7 +15,8 @@ class Field
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['template:read'])]
+
+    #[Groups(['template:read', 'form:read'])]
     private ?int $id = null;
     #[Groups(['template:read'])]
     #[ORM\Column(length: 255, nullable: true)]

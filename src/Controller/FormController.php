@@ -21,11 +21,12 @@ final class FormController extends AbstractController
     {
         return $this->json([
             'message' => 'Welcome to your new controller!',
+
             'path' => 'src/Controller/FormController.php',
         ]);
     }
 
-    #[Route('/api/form/submit', name: 'app_form_get', methods: ['POST'])]
+    #[Route('/api/form/submit', name: 'set_form', methods: ['POST'])]
     public function submit(Request $request, FieldRepository $fieldRepository, FormResponseRepository $responseRepository, EntityManagerInterface $emi, SerializerInterface $serializer): JsonResponse
     {
         $data = json_decode($request->getContent(), true);
@@ -34,9 +35,11 @@ final class FormController extends AbstractController
             $field = $fieldRepository->find($response['id']);
             $this->deleteIfExists($field, $responseRepository);
             $responseEntity = new FormResponse();
+            $responseEntity->setValue([$response['value']]);
+            $responseEntity->setTemplate($field->getTemplate());
             $responseEntity->setQuestion($field);
             $responseEntity->setRespondent($this->getUser());
-            $this->setResponse($response, $responseEntity);
+            // $this->setResponse($response, $responseEntity);
             $emi->persist($responseEntity);
         }
         $emi->flush();
@@ -44,33 +47,19 @@ final class FormController extends AbstractController
         return new JsonResponse(['message' => 'Form submitted successfully', 'data' => $formData], 201);
     }
 
+    #[Route('/api/form/{id}', name: 'get_form', methods: ['GET'])]
+    public function getForm($id, Request $request, FormResponseRepository $responseRepository, SerializerInterface $serializer): JsonResponse
+    {
+        $responses = $responseRepository->findBy(['respondent' => $this->getUser(), 'template' => $id]);
+        $json = $serializer->serialize($responses, 'json', ['groups' => ['form:read']]);
+        return new JsonResponse(['message' => 'Form fetched successfully', 'data' => ['fields' => $json, 'id' => $this->getUser()->getId()], 200]);
+    }
 
     private function deleteIfExists(Field $field, $responseRepository): void
     {
         $response = $responseRepository->findOneBy(['question' => $field, 'respondent' => $this->getUser()]);
         if ($response) {
             $field->removeFormResponse($response);
-        }
-    }
-
-    private function setResponse($jsonResponse, FormResponse $responseEntity): void
-    {
-
-        switch ($jsonResponse['type']) {
-            case 'single-line':
-            case 'paragraph':
-                $responseEntity->setTextResponse($jsonResponse['value']);
-                break;
-
-            case 'number':
-            case 'one-from-list':
-                $responseEntity->setNumericResponse($jsonResponse['value']);
-                break;
-
-            case 'few-from-list':
-            default:
-                $responseEntity->setPickedOptions($jsonResponse['value']);
-                break;
         }
     }
 }

@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\FormResponseRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: FormResponseRepository::class)]
 class FormResponse
@@ -15,21 +16,19 @@ class FormResponse
     private ?int $id = null;
 
     #[ORM\ManyToOne(inversedBy: 'formResponses')]
+    #[Groups('form:read')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Field $question = null;
-
-    #[ORM\Column(length: 500, nullable: true)]
-    private ?string $textResponse = null;
-
-    #[ORM\Column(nullable: true)]
-    private ?int $numericResponse = null;
-
-    #[ORM\Column(type: Types::ARRAY, nullable: true)]
-    private ?array $pickedOptions = null;
-
+    #[Groups('form:read')]
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $respondent = null;
+    #[Groups('form:read')]
+    #[ORM\Column(nullable: true)]
+    private ?array $value = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Template $template = null;
 
     public function getId(): ?int
     {
@@ -48,49 +47,33 @@ class FormResponse
         return $this;
     }
 
-    public function getTextResponse(): ?string
-    {
-        return $this->textResponse;
-    }
-
-    public function setTextResponse(?string $textResponse): static
-    {
-        $this->textResponse = $textResponse;
-
-        return $this;
-    }
-
-    public function getNumericResponse(): ?int
-    {
-        return $this->numericResponse;
-    }
-
-    public function setNumericResponse(?int $numericResponse): static
-    {
-        $this->numericResponse = $numericResponse;
-        return $this;
-    }
-
-    public function getPickedOptions(): ?array
-    {
-        return $this->pickedOptions;
-    }
-
-    public function setPickedOptions(?array $pickedOptions): static
-    {
-        $this->pickedOptions = $pickedOptions;
-
-        return $this;
-    }
-
-    public function getRespondent(): ?User
-    {
-        return $this->respondent;
-    }
-
     public function setRespondent(?User $respondent): static
     {
         $this->respondent = $respondent;
+
+        return $this;
+    }
+
+    public function getValue(): ?array
+    {
+        return $this->value;
+    }
+
+    public function setValue(?array $value): static
+    {
+        $this->value = $value;
+
+        return $this;
+    }
+
+    public function getTemplate(): ?Template
+    {
+        return $this->template;
+    }
+
+    public function setTemplate(?Template $template): static
+    {
+        $this->template = $template;
 
         return $this;
     }
