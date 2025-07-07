@@ -20,15 +20,11 @@ class FormResponse
     #[ORM\JoinColumn(nullable: false)]
     private ?Field $question = null;
     #[Groups('form:read')]
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $respondent = null;
-    #[Groups('form:read')]
     #[ORM\Column(nullable: true)]
     private ?array $value = null;
-    #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Template $template = null;
+
+    #[ORM\ManyToOne(inversedBy: 'fields')]
+    private ?Form $form = null;
 
     public function getId(): ?int
     {
@@ -47,12 +43,6 @@ class FormResponse
         return $this;
     }
 
-    public function setRespondent(?User $respondent): static
-    {
-        $this->respondent = $respondent;
-
-        return $this;
-    }
 
     public function getValue(): ?array
     {
@@ -66,14 +56,14 @@ class FormResponse
         return $this;
     }
 
-    public function getTemplate(): ?Template
+    public function getForm(): ?Form
     {
-        return $this->template;
+        return $this->form;
     }
 
-    public function setTemplate(?Template $template): static
+    public function setForm(?Form $form): static
     {
-        $this->template = $template;
+        $this->form = $form;
 
         return $this;
     }

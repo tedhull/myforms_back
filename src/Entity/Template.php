@@ -55,9 +55,16 @@ class Template
     #[ORM\Column(type: Types::ARRAY, nullable: true)]
     private ?array $tags = null;
 
+    /**
+     * @var Collection<int, Form>
+     */
+    #[ORM\OneToMany(targetEntity: Form::class, mappedBy: 'template', orphanRemoval: true)]
+    private Collection $forms;
+
     public function __construct()
     {
         $this->fields = new ArrayCollection();
+        $this->forms = new ArrayCollection();
     }
 
 
@@ -176,6 +183,36 @@ class Template
     public function setTags(?array $tags): static
     {
         $this->tags = $tags;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Form>
+     */
+    public function getForms(): Collection
+    {
+        return $this->forms;
+    }
+
+    public function addForm(Form $form): static
+    {
+        if (!$this->forms->contains($form)) {
+            $this->forms->add($form);
+            $form->setTemplate($this);
+        }
+
+        return $this;
+    }
+
+    public function removeForm(Form $form): static
+    {
+        if ($this->forms->removeElement($form)) {
+            // set the owning side to null (unless already changed)
+            if ($form->getTemplate() === $this) {
+                $form->setTemplate(null);
+            }
+        }
 
         return $this;
     }
