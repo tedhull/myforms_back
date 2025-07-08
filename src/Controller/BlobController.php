@@ -13,15 +13,6 @@ require dirname(__DIR__) . '/../vendor/autoload.php';
 
 final class BlobController extends AbstractController
 {
-    #[Route('/blob', name: 'app_blob')]
-    public function index(): JsonResponse
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/BlobController.php',
-        ]);
-    }
-
     #[Route('/api/blob/presign', name: 'app_blob_presign', methods: ['POST'])]
     public function presign(Request $request): JsonResponse
     {

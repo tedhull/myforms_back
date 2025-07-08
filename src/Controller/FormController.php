@@ -20,15 +20,6 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 final class FormController extends AbstractController
 {
-    #[Route('/form', name: 'app_form')]
-    public function index(): JsonResponse
-    {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/FormController.php',
-        ]);
-    }
-
     #[Route('/api/form/submit', name: 'set_form', methods: ['POST'])]
     public function submit(Request $request, TemplateRepository $templateRepository, UserRepository $userRepository, FieldRepository $fieldRepository, FormResponseRepository $responseRepository, FormRepository $formRepository, EntityManagerInterface $emi, SerializerInterface $serializer): JsonResponse
     {

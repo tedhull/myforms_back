@@ -14,14 +14,12 @@ use Symfony\Component\Serializer\SerializerInterface;
 
 final class TemplatesController extends AbstractController
 {
-
-    #[Route('api/templates', name: 'app_templates')]
-    public function index(): JsonResponse
+    #[Route('/api/templates/latest', name: 'app_api_templates_latest', methods: ['GET'])]
+    public function index(TemplateRepository $templateRepository, SerializerInterface $serializer): JsonResponse
     {
-        return $this->json([
-            'message' => 'Welcome to your new controller!',
-            'path' => 'src/Controller/TemplatesController.php',
-        ]);
+        $templates = $templateRepository->findBy([], ['createdAt' => 'DESC'], 5);
+        $json = $serializer->serialize($templates, 'json', ['groups' => ['template:list']]);
+        return new JsonResponse(['message' => "templates fetched successfully", 'templates' => $json]);
     }
 
     #[Route('api/templates/new', name: 'create', methods: ['POST'])]
@@ -59,6 +57,22 @@ final class TemplatesController extends AbstractController
         }
         $json = $serializer->serialize($template, 'json', ['groups' => 'template:read']);
         return new JsonResponse($json, 200, [], true);
+    }
+
+    #[Route('/api/templates/delete', name: 'delete', methods: ['DELETE'])]
+    public function deleteTemplate(EntityManagerInterface $emi, SerializerInterface $serializer, Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true);
+        $ids = $data['ids'];
+        foreach ($ids as $id) {
+            $template = $emi->getRepository(Template::class)->find($id);
+            if ($template) {
+                $emi->remove($template);
+            }
+        }
+        $emi->flush();
+        $json = $serializer->serialize($ids, 'json');
+        return new JsonResponse(['message' => "deleted successfully", 'ids' => $json], 204);
     }
 
     #[Route('api/templates/update/{id}', name: 'update', methods: ['PUT'])]

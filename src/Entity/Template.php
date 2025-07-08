@@ -15,10 +15,10 @@ class Template
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['template:read'])]
+    #[Groups(['template:read', 'template:list', 'form:list'])]
     private ?int $id = null;
 
-    #[Groups(['template:read'])]
+    #[Groups(['template:read', 'template:list', 'form:list'])]
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
@@ -43,7 +43,7 @@ class Template
     #[ORM\OneToMany(targetEntity: Field::class, mappedBy: 'template', orphanRemoval: true)]
     #[ORM\OrderBy(['position' => 'ASC'])]
     private Collection $fields;
-    #[Groups(['template:read'])]
+    #[Groups(['template:read', 'template:list'])]
     #[ORM\ManyToOne(inversedBy: 'Templates')]
     private ?User $creator = null;
 
@@ -58,7 +58,7 @@ class Template
     /**
      * @var Collection<int, Form>
      */
-    #[ORM\OneToMany(targetEntity: Form::class, mappedBy: 'template', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Form::class, mappedBy: 'template',cascade: ['remove'],  orphanRemoval: true)]
     private Collection $forms;
 
     public function __construct()

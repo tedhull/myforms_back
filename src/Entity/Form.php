@@ -16,7 +16,7 @@ class Form
     #[ORM\Column]
     private ?int $id = null;
 
-    #[Groups(groups: ['form:read'])]
+    #[Groups(groups: ['form:read', 'form:list'])]
     #[ORM\ManyToOne(inversedBy: 'forms')]
     #[ORM\JoinColumn(nullable: false)]
     private ?User $respondent = null;
@@ -25,10 +25,10 @@ class Form
      * @var Collection<int, FormResponse>
      */
     #[Groups(groups: ['form:read'])]
-    #[ORM\OneToMany(targetEntity: FormResponse::class, mappedBy: 'form')]
+    #[ORM\OneToMany(targetEntity: FormResponse::class, mappedBy: 'form', cascade: ['remove'], orphanRemoval: true)]
     private Collection $fields;
 
-    #[Groups(groups: ['form:read'])]
+    #[Groups(groups: ['form:read', 'form:list'])]
     #[ORM\ManyToOne(inversedBy: 'forms')]
     #[ORM\JoinColumn(nullable: false)]
     private ?Template $template = null;

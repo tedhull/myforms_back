@@ -21,7 +21,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[Groups(['template:read', 'form:read'])]
     private ?int $id = null;
 
-    #[Groups(['form:read'])]
+    #[Groups(['form:read', 'template:list'])]
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
