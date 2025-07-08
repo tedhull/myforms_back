@@ -18,10 +18,10 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    #[Groups(['template:read', 'form:read'])]
+    #[Groups(['template:read', 'form:read', 'user:list'])]
     private ?int $id = null;
 
-    #[Groups(['form:read', 'template:list'])]
+    #[Groups(['form:read', 'template:list', 'user:list'])]
     #[ORM\Column(length: 180)]
     private ?string $email = null;
 
@@ -29,6 +29,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      * @var list<string> The user roles
      */
     #[ORM\Column]
+    #[Groups(['user:list'])]
     private array $roles = [];
 
     /**
@@ -40,13 +41,13 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     /**
      * @var Collection<int, Template>
      */
-    #[ORM\OneToMany(targetEntity: Template::class, mappedBy: 'creator')]
+    #[ORM\OneToMany(targetEntity: Template::class, mappedBy: 'creator', cascade: ['remove'], orphanRemoval: true)]
     private Collection $Templates;
 
     /**
      * @var Collection<int, Form>
      */
-    #[ORM\OneToMany(targetEntity: Form::class, mappedBy: 'respondent', orphanRemoval: true)]
+    #[ORM\OneToMany(targetEntity: Form::class, mappedBy: 'respondent', cascade: ['remove'], orphanRemoval: true)]
     private Collection $forms;
 
     public function __construct()
