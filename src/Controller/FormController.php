@@ -56,12 +56,42 @@ final class FormController extends AbstractController
     }
 
     #[Route('/api/form/{id}', name: 'list_forms', methods: ['GET'])]
-    public function listForms($id, Request $request, TemplateRepository $templateRepository, SerializerInterface $serializer): JsonResponse
+    public function listForms($id, TemplateRepository $templateRepository, SerializerInterface $serializer): JsonResponse
     {
         $template = $templateRepository->find($id);
         $forms = $template->getForms();
         $json = $serializer->serialize($forms, 'json', ['groups' => ['form:read']]);
         return new JsonResponse(['message' => 'Form listed successfully', 'data' => $json], 200);
+    }
+
+    #[Route('/api/aggregated/{id}', name: 'aggregated', methods: ['GET'])]
+    public function aggregated($id, TemplateRepository $templateRepository, SerializerInterface $serializer): JsonResponse
+    {
+        $template = $templateRepository->find($id);
+            $fields = $template->getFields();
+        $forms = $template->getForms();
+
+        $fieldsMap = [];
+        foreach ($fields as $field) {
+            if ($field->getType() == 'image') continue;
+            $fieldsMap[$field->getId()] = [
+                'title' => $field->getTitle(),
+                'type' => $field->getQuestionType(),
+                'options' => $field->getOptions(),
+                'responses' => []
+            ];
+        }
+
+        foreach ($forms as $form) {
+            $responses = $form->getFields();
+            foreach ($responses as $response) {
+                $id = $response->getQuestion()->getId();
+                $value = $response->getValue();
+                $fieldsMap[$id]['responses'][] = $value;
+            }
+        }
+        $json = $serializer->serialize($fieldsMap, 'json');
+        return new JsonResponse(['message' => 'Form aggregated successfully', 'data' => $json], 200);
     }
 
     private function deleteIfExists(Field $field, $responseRepository, Form $form): void
